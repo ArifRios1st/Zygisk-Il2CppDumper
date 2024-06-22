@@ -177,7 +177,19 @@ std::string dump_property(Il2CppClass *klass) {
             prop_class = il2cpp_class_from_type(param);
         }
         if (prop_class) {
-            outPut << il2cpp_class_get_name(prop_class) << " " << prop_name << " { ";
+            outPut << il2cpp_class_get_name(prop_class);
+            if(prop_class->generic_class) {
+                outPut << "<";
+                const Il2CppGenericInst *inst = prop_class->generic_class->context.class_inst;
+                for (size_t generic_id = 0; generic_id < inst->type_argc; generic_id++) {
+                    outPut << il2cpp_type_get_name(inst->type_argv[generic_id]);
+                    if(generic_id < inst->type_argc-1){
+                        outPut << ", ";
+                    }
+                }
+                outPut << ">";
+            }
+            outPut << " " << prop_name << " { ";
             if (get) {
                 outPut << "get; ";
             }
@@ -234,7 +246,19 @@ std::string dump_field(Il2CppClass *klass) {
         }
         auto field_type = il2cpp_field_get_type(field);
         auto field_class = il2cpp_class_from_type(field_type);
-        outPut << il2cpp_class_get_name(field_class) << " " << il2cpp_field_get_name(field);
+        outPut << il2cpp_class_get_name(field_class);
+        if(field_class->generic_class) {
+            outPut << "<";
+            const Il2CppGenericInst *inst = field_class->generic_class->context.class_inst;
+            for (size_t generic_id = 0; generic_id < inst->type_argc; generic_id++) {
+                outPut << il2cpp_type_get_name(inst->type_argv[generic_id]);
+                if(generic_id < inst->type_argc-1){
+                    outPut << ", ";
+                }
+            }
+            outPut << ">";
+        }
+        outPut << " " << il2cpp_field_get_name(field);
         //TODO 获取构造函数初始化后的字段值
         if (attrs & FIELD_ATTRIBUTE_LITERAL && is_enum) {
             uint64_t val = 0;
